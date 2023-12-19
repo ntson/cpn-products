@@ -5,7 +5,7 @@ import { AppShell, Burger, Button, Group, NavLink } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 
 interface Props {
@@ -15,8 +15,6 @@ interface Props {
 export default function AppLayout({ children }: Props) {
   const [page, setPage] = useState(1);
   const [opened, { toggle }] = useDisclosure();
-
-  const router = useRouter();
 
   const queryClient = useQueryClient();
 

@@ -1,10 +1,11 @@
 'use client';
 
 import { PageContext } from '@/app/context/pageContext';
-import { AppShell, Burger, Group, NavLink } from '@mantine/core';
+import { AppShell, Burger, Button, Group, NavLink } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
+import { useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 interface Props {
@@ -14,6 +15,15 @@ interface Props {
 export default function AppLayout({ children }: Props) {
   const [page, setPage] = useState(1);
   const [opened, { toggle }] = useDisclosure();
+
+  const router = useRouter();
+
+  const queryClient = useQueryClient();
+
+  const handleLogout = () => {
+    localStorage.removeItem('authToken');
+    queryClient.invalidateQueries({ queryKey: ['currentUser'] });
+  };
 
   const pathname = usePathname();
 
@@ -36,6 +46,10 @@ export default function AppLayout({ children }: Props) {
               hiddenFrom="sm"
               size="sm"
             />
+
+            <Button color="red" onClick={handleLogout}>
+              Logout
+            </Button>
           </Group>
         </AppShell.Header>
 

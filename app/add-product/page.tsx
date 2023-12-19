@@ -3,10 +3,12 @@
 import { Product } from '@/app/models/product';
 import { addProduct } from '@/app/services/products/addProduct';
 import { getProducts } from '@/app/services/products/getProducts';
+import { getCurrentUser } from '@/app/services/users/getCurrentUser';
 import { Button, Flex, NumberInput, Text, TextInput } from '@mantine/core';
 import { isInRange, isNotEmpty, useForm } from '@mantine/form';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { redirect, useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function AddProductRoute() {
   const form = useForm<Omit<Product, 'id'>>({
@@ -38,6 +40,12 @@ export default function AddProductRoute() {
 
   const queryClient = useQueryClient();
 
+  const currentUserQuery = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => getCurrentUser(),
+    refetchOnMount: true,
+  });
+
   const addProductMutation = useMutation({
     mutationFn: addProduct,
     onSuccess: async (data) => {
@@ -59,9 +67,23 @@ export default function AddProductRoute() {
     },
   });
 
+  useEffect(() => {
+    if (currentUserQuery.isLoading) {
+      return;
+    }
+
+    if (currentUserQuery.data === null) {
+      redirect('/login');
+    }
+  }, [currentUserQuery.data, currentUserQuery.isLoading]);
+
   const handleSubmit = (values: Omit<Product, 'id'>) => {
     addProductMutation.mutate(values);
   };
+
+  if (currentUserQuery.isLoading) {
+    return null;
+  }
 
   return (
     <Flex

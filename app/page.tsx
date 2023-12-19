@@ -4,9 +4,8 @@ import ProductCard from '@/app/components/ProductCard';
 import { usePageContext } from '@/app/context/pageContext';
 import { Product } from '@/app/models/product';
 import { getProducts } from '@/app/services/products/getProducts';
-import { Center, Grid, Pagination } from '@mantine/core';
+import { Center, Grid, Pagination, Skeleton } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
 
 export default function HomeRoute() {
   const { page, setPage } = usePageContext();
@@ -22,14 +21,24 @@ export default function HomeRoute() {
   return (
     <>
       <Grid>
-        {productsQuery.data &&
-          productsQuery.data.map((product: Product) => {
-            return (
-              <Grid.Col span={{ xs: 6, md: 3 }} key={product.id}>
-                <ProductCard product={product} />
-              </Grid.Col>
-            );
-          })}
+        {productsQuery.isLoading
+          ? Array.from({ length: 20 }, (v, i) => i).map((i) => {
+              return (
+                <Grid.Col span={{ xs: 6, md: 3 }} key={i}>
+                  <Skeleton height={400} radius="md" />
+                </Grid.Col>
+              );
+            })
+          : null}
+        {productsQuery.data
+          ? productsQuery.data.map((product: Product) => {
+              return (
+                <Grid.Col span={{ xs: 6, md: 3 }} key={product.id}>
+                  <ProductCard product={product} />
+                </Grid.Col>
+              );
+            })
+          : null}
       </Grid>
 
       <Center mt="md">
